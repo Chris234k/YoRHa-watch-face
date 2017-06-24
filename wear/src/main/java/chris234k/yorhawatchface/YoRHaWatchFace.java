@@ -118,6 +118,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private boolean isTextCalculated;
         private float mTextY;
 
+        private static final String RANDOM_CHARS = "1234567890:";
         private boolean isAnimating = false;
         private int mTextWriterIndex;
         private String mTextWriterContent = new String();
@@ -135,8 +136,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
                 Random r = new Random();
                 // Display random number from [0, 9)
-                int randomNum = r.nextInt(10);
-                Character randomChar = Character.forDigit(randomNum, 10);
+                int randomNum = r.nextInt(RANDOM_CHARS.length());
+                char randomChar = RANDOM_CHARS.charAt(randomNum);
 
                 if(mTextWriterIndex > 0){
                     String subStr = mTextWriterContent.substring(0, mTextWriterIndex);
