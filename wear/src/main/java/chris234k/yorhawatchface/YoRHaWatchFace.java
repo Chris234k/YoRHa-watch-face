@@ -56,7 +56,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
      * displayed in interactive mode.
      */
         private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(32);
-        private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(128);
+        private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(64);
 
     /**
      * Handler message id for updating the time periodically in interactive mode.
@@ -131,6 +131,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // 1. Display correct characters from [0, current index]
                 // 2. Grab any character from the string and put it at current index
                 // 3. Iterate to next letter
+                isAnimating = true;
 
                 Random r = new Random();
                 // Display random number from [0, 9)
@@ -164,7 +165,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             mTextWriterIndex = 0;
 
             mTextWriterHandler.removeCallbacks(mTextWriterRunnable);
-            mTextWriterHandler.postDelayed(mTextWriterRunnable, 0);
+            mTextWriterHandler.postDelayed(mTextWriterRunnable, TEXT_DRAW_UPDATE_RATE_MS);
         }
 
         @Override
@@ -333,12 +334,13 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                     mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
 
             float yPos = updateTextY(timeString);
-            if(mCalendar.get(Calendar.SECOND) % 10 == 0) {
-                isAnimating = true;
+            // On remainder 9 we start the animation (so that it will start on next update)
+            if(mCalendar.get(Calendar.SECOND) % 10 == 9) {
                 animateText(timeString);
+                isAnimating = true;
             }
 
-            // Every 10th second and not animating
+            // Draw text using animated text values
             if(isAnimating) {
                 canvas.drawText(mTextWriterValue.toString(), mCenterX, yPos, mTimePaint);
             }
