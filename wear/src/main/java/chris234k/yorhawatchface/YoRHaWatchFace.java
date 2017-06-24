@@ -32,6 +32,7 @@ import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
@@ -131,14 +132,21 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // 2. Grab any character from the string and put it at current index
                 // 3. Iterate to next letter
 
-                mTextWriterValue = new StringBuilder(mTextWriterContent.substring(0, mTextWriterIndex));
+                Random r = new Random();
+                // Display random number from [0, 9)
+                int randomNum = r.nextInt(10);
+                Character randomChar = Character.forDigit(randomNum, 10);
 
                 if(mTextWriterIndex > 0){
-                    Random r = new Random();
-                    // Display random number from [0, 9)
-                    int randomNum = r.nextInt(10);
-                    mTextWriterValue.setCharAt(mTextWriterIndex-1, Character.forDigit(randomNum, 10));
+                    String subStr = mTextWriterContent.substring(0, mTextWriterIndex);
+                    mTextWriterValue = new StringBuilder(subStr);
+                    mTextWriterValue.setCharAt(mTextWriterIndex-1, randomChar);
                 }
+                else{
+                    mTextWriterValue = new StringBuilder(randomChar);
+                }
+
+                Log.d("yorhawatchface", mTextWriterIndex + " " + mTextWriterValue);
 
                 mTextWriterIndex++;
 
