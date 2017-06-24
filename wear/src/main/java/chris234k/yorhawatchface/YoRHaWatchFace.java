@@ -337,7 +337,6 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             // On remainder 9 we start the animation (so that it will start on next update)
             if(mCalendar.get(Calendar.SECOND) % 10 == 9) {
                 animateText(timeString);
-                isAnimating = true;
             }
 
             // Draw text using animated text values
