@@ -208,7 +208,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private Paint createTextPaint(int textColor) {
             Paint paint = new Paint();
             paint.setColor(textColor);
-            paint.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/Uzumasa.otf"));
+            paint.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FOT-RodinBokutoh Pro M.otf"));
             paint.setAntiAlias(true);
             paint.setTextAlign(Paint.Align.CENTER);
 
