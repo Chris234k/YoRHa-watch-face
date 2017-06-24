@@ -115,6 +115,32 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private boolean isTextCalculated;
         private float mTextY;
 
+        private boolean isAnimating;
+        private int mTextWriterIndex;
+        private String mTextWriterContent = new String(), mTextWriterValue = new String();
+        private Handler mTextWriterHandler = new Handler();
+        private Runnable mTextWriterRunnable = new Runnable() {
+            @Override
+            public void run() {
+                mTextWriterValue = mTextWriterContent.substring(0, mTextWriterIndex++);
+                if(mTextWriterIndex <= mTextWriterContent.length()) {
+                    mTextWriterHandler.postDelayed(mTextWriterRunnable, 1000);
+                }
+                else{
+                    isAnimating = false;
+                }
+            }
+        };
+
+        public void animateText(String text) {
+            mTextWriterContent = text;
+            mTextWriterIndex = 0;
+
+            isAnimating = true;
+            mTextWriterHandler.removeCallbacks(mTextWriterRunnable);
+            mTextWriterHandler.postDelayed(mTextWriterRunnable, 1000);
+        }
+
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
@@ -251,11 +277,6 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
              */
             mCenterX = mWidth / 2f;
             mCenterY = mHeight / 2f;
-
-
-//            String timeChars = "0123456789:";
-//            mTimePaint.getTextBounds(timeChars, 0, timeChars.length(), mTextBounds);
-//            mTextY = mCenterY - mTextBounds.exactCenterY();
         }
 
         @Override
@@ -287,10 +308,12 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                     : String.format("%d:%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
                     mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
 
-//            mTimePaint.getTextBounds(timeString, 0, timeString.length(), mTextBounds);
-//            mTextY = mCenterY - mTextBounds.exactCenterY();
+            if(!isAnimating) {
+                animateText(timeString);
+            }
+
             float yPos = updateTextY(timeString);
-            canvas.drawText(timeString, mCenterX, yPos, mTimePaint);
+            canvas.drawText(mTextWriterValue, mCenterX, yPos, mTimePaint);
             canvas.drawText(mDateStr, mCenterX, yPos + mHeight * 0.1f, mDatePaint);
         }
 
