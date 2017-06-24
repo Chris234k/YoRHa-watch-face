@@ -4,6 +4,7 @@ Watch face w/ YoRHa stylings from NieR:Automata
 # Design TODO
 - Find actual font (or something closer)
 - Menu animations (almost there)
+- Box around text? Animate boxes in w/ horizontal movement
 - Buzz on hour
 - Dark theme (main menu style?)
 - Complications w/ chips from UI
