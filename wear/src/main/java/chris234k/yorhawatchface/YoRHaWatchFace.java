@@ -325,11 +325,25 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             } else {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
 
+
                 // Draw grid
                 for (int i = 0; i < mWidth / gridWidth; i++) {
+                    if(i % 5 == 0 || i % 5 == 1){
+                        mGridPaint.setStrokeWidth(5);
+                    } else{
+                        mGridPaint.setStrokeWidth(1);
+                    }
+
                     canvas.drawLine(i * gridWidth, 0, i * gridHeight, mHeight, mGridPaint);
                 }
+
                 for (int i = 0; i < mHeight / gridHeight; i++) {
+                    if(i % 5 == 0 || i % 5 == 1){
+                        mGridPaint.setStrokeWidth(5);
+                    } else{
+                        mGridPaint.setStrokeWidth(1);
+                    }
+
                     canvas.drawLine(0, i * gridHeight, mWidth, i * gridHeight, mGridPaint);
                 }
 
