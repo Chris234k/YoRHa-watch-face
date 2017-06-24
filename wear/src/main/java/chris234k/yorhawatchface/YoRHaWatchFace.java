@@ -38,6 +38,7 @@ import android.view.WindowInsets;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +54,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
      * displayed in interactive mode.
      */
-    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
+        private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(32);
+        private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(128);
 
     /**
      * Handler message id for updating the time periodically in interactive mode.
@@ -114,17 +116,34 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         // Don't want the text adjusting with each number changed
         private boolean isTextCalculated;
         private float mTextY;
-        
-        private boolean isAnimating;
+
+        private boolean isAnimating = false;
         private int mTextWriterIndex;
-        private String mTextWriterContent = new String(), mTextWriterValue = new String();
+        private String mTextWriterContent = new String();
+        private StringBuilder mTextWriterValue = new StringBuilder();
         private Handler mTextWriterHandler = new Handler();
         private Runnable mTextWriterRunnable = new Runnable() {
             @Override
             public void run() {
-                mTextWriterValue = mTextWriterContent.substring(0, mTextWriterIndex++);
+                // Consecutively display each character in the string
+                // Viewing next letter is a 3 step process
+                // 1. Display correct characters from [0, current index]
+                // 2. Grab any character from the string and put it at current index
+                // 3. Iterate to next letter
+
+                mTextWriterValue = new StringBuilder(mTextWriterContent.substring(0, mTextWriterIndex));
+
+                if(mTextWriterIndex > 0){
+                    Random r = new Random();
+                    // Display random number from [0, 9)
+                    int randomNum = r.nextInt(10);
+                    mTextWriterValue.setCharAt(mTextWriterIndex-1, Character.forDigit(randomNum, 10));
+                }
+
+                mTextWriterIndex++;
+
                 if(mTextWriterIndex <= mTextWriterContent.length()) {
-                    mTextWriterHandler.postDelayed(mTextWriterRunnable, INTERACTIVE_UPDATE_RATE_MS);
+                    mTextWriterHandler.postDelayed(mTextWriterRunnable, TEXT_DRAW_UPDATE_RATE_MS);
                 }
                 else{
                     isAnimating = false;
@@ -136,9 +155,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             mTextWriterContent = text;
             mTextWriterIndex = 0;
 
-            isAnimating = true;
             mTextWriterHandler.removeCallbacks(mTextWriterRunnable);
-            mTextWriterHandler.postDelayed(mTextWriterRunnable, INTERACTIVE_UPDATE_RATE_MS);
+            mTextWriterHandler.postDelayed(mTextWriterRunnable, 0);
         }
 
         @Override
@@ -306,12 +324,20 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                     : String.format("%d:%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
                     mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
 
-            if(!isAnimating) {
+            float yPos = updateTextY(timeString);
+            if(mCalendar.get(Calendar.SECOND) % 10 == 0) {
+                isAnimating = true;
                 animateText(timeString);
             }
 
-            float yPos = updateTextY(timeString);
-            canvas.drawText(mTextWriterValue, mCenterX, yPos, mTimePaint);
+            // Every 10th second and not animating
+            if(isAnimating) {
+                canvas.drawText(mTextWriterValue.toString(), mCenterX, yPos, mTimePaint);
+            }
+            else if (!isAnimating){
+                canvas.drawText(timeString, mCenterX, yPos, mTimePaint);
+            }
+
             canvas.drawText(mDateStr, mCenterX, yPos + mHeight * 0.1f, mDatePaint);
         }
 
