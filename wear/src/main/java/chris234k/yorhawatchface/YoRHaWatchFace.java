@@ -114,7 +114,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         // Don't want the text adjusting with each number changed
         private boolean isTextCalculated;
         private float mTextY;
-
+        
         private boolean isAnimating;
         private int mTextWriterIndex;
         private String mTextWriterContent = new String(), mTextWriterValue = new String();
@@ -124,7 +124,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             public void run() {
                 mTextWriterValue = mTextWriterContent.substring(0, mTextWriterIndex++);
                 if(mTextWriterIndex <= mTextWriterContent.length()) {
-                    mTextWriterHandler.postDelayed(mTextWriterRunnable, 1000);
+                    mTextWriterHandler.postDelayed(mTextWriterRunnable, INTERACTIVE_UPDATE_RATE_MS);
                 }
                 else{
                     isAnimating = false;
@@ -138,7 +138,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             isAnimating = true;
             mTextWriterHandler.removeCallbacks(mTextWriterRunnable);
-            mTextWriterHandler.postDelayed(mTextWriterRunnable, 1000);
+            mTextWriterHandler.postDelayed(mTextWriterRunnable, INTERACTIVE_UPDATE_RATE_MS);
         }
 
         @Override
@@ -146,9 +146,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             super.onCreate(holder);
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(YoRHaWatchFace.this)
-                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
-                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
-                    .setShowSystemUiTime(false)
+                    .setShowUnreadCountIndicator(true)
                     .build());
             Resources resources = YoRHaWatchFace.this.getResources();
 
