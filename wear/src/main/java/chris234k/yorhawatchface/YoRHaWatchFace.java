@@ -128,10 +128,12 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             @Override
             public void run() {
                 // Consecutively display each character in the string
-                // Viewing next letter is a 3 step process
-                // 1. Display correct characters from [0, current index]
-                // 2. Grab any character from the string and put it at current index
-                // 3. Iterate to next letter
+                // For index x
+                // Frame 1- display random letter at x
+                // Frame 2- display value at index 0 at x
+                // Advance index
+                //
+                // This give the appearance that index 0 is moving through the string to populate it
 
                 mIsAnimating = true;
 
