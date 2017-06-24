@@ -120,7 +120,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
         private static final String RANDOM_CHARS = "1234567890:";
         private boolean mIsAnimating, mForceAnimationStart;
-        private int mTextWriterIndex;
+        private int mTextWriterIndex, mFrameIndex;
         private String mTextWriterContent = new String();
         private StringBuilder mTextWriterValue = new StringBuilder();
         private Handler mTextWriterHandler = new Handler();
@@ -128,19 +128,26 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             @Override
             public void run() {
                 // Consecutively display each character in the string
+                //
                 // For index x
                 // Frame 1- display random letter at x
                 // Frame 2- display value at index 0 at x
                 // Advance index
                 //
-                // This give the appearance that index 0 is moving through the string to populate it
+                // This gives the appearance that index 0 is moving through the string to populate it
 
                 mIsAnimating = true;
 
-                // Roll random character to display for current index
-                Random r = new Random();
-                int randomNum = r.nextInt(RANDOM_CHARS.length());
-                char randomChar = RANDOM_CHARS.charAt(randomNum);
+                char insertChar;
+
+                if(mFrameIndex == 0){
+                    // Roll random character to display for current index
+                    Random r = new Random();
+                    int randomNum = r.nextInt(RANDOM_CHARS.length());
+                    insertChar = RANDOM_CHARS.charAt(randomNum);
+                } else {
+                    insertChar = mTextWriterContent.charAt(0);
+                }
 
                 // If the string is long enough to pull a sub string from
                 if(mTextWriterIndex > 0){
@@ -148,15 +155,20 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                     String subStr = mTextWriterContent.substring(0, mTextWriterIndex);
                     mTextWriterValue = new StringBuilder(subStr);
                     // Replace last char in sub w/ random
-                    mTextWriterValue.setCharAt(mTextWriterIndex-1, randomChar);
+                    mTextWriterValue.setCharAt(mTextWriterIndex-1, insertChar);
                 }
                 else{
-                    mTextWriterValue = new StringBuilder(randomChar);
+                    mTextWriterValue = new StringBuilder(insertChar);
                 }
 
                 Log.d("yorhawatchface", mTextWriterIndex + " " + mTextWriterValue);
 
-                mTextWriterIndex++;
+                if(mFrameIndex == 1){
+                    mTextWriterIndex++;
+                    mFrameIndex = 0;
+                }else{
+                    mFrameIndex = 1;
+                }
 
                 if(mTextWriterIndex <= mTextWriterContent.length()) {
                     mTextWriterHandler.postDelayed(mTextWriterRunnable, TEXT_DRAW_UPDATE_RATE_MS);
@@ -170,6 +182,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         public void animateText(String text) {
             mTextWriterContent = text;
             mTextWriterIndex = 0;
+            mFrameIndex = 0;
 
             mTextWriterHandler.removeCallbacks(mTextWriterRunnable);
             mTextWriterHandler.postDelayed(mTextWriterRunnable, TEXT_DRAW_UPDATE_RATE_MS);
