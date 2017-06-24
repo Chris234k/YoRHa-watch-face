@@ -132,16 +132,20 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // 1. Display correct characters from [0, current index]
                 // 2. Grab any character from the string and put it at current index
                 // 3. Iterate to next letter
+
                 isAnimating = true;
 
+                // Roll random character to display for current index
                 Random r = new Random();
-                // Display random number from [0, 9)
                 int randomNum = r.nextInt(RANDOM_CHARS.length());
                 char randomChar = RANDOM_CHARS.charAt(randomNum);
 
+                // If the string is long enough to pull a sub string from
                 if(mTextWriterIndex > 0){
+                    // Pull substring
                     String subStr = mTextWriterContent.substring(0, mTextWriterIndex);
                     mTextWriterValue = new StringBuilder(subStr);
+                    // Replace last char in sub w/ random
                     mTextWriterValue.setCharAt(mTextWriterIndex-1, randomChar);
                 }
                 else{
@@ -284,6 +288,11 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 invalidate();
             }
 
+            if(!inAmbientMode){
+                // Don't allow animations in ambient mode
+                isAnimating = false;
+            }
+
             // Whether the timer should be running depends on whether we're visible (as well as
             // whether we're in ambient mode), so we may need to start or stop the timer.
             updateTimer();
@@ -335,13 +344,14 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                     mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
 
             float yPos = updateTextY(timeString);
-            // On remainder 9 we start the animation (so that it will start on next update)
-            if(mCalendar.get(Calendar.SECOND) % 10 == 9) {
+
+            // On remainder 9 we start the animation (so that it will start on 00) -- doesn't quite work
+            if(!isInAmbientMode() && mCalendar.get(Calendar.SECOND) % 10 == 9) {
                 animateText(timeString);
             }
 
             // Draw text using animated text values
-            if(isAnimating) {
+            if(!isInAmbientMode() && isAnimating) {
                 canvas.drawText(mTextWriterValue.toString(), mCenterX, yPos, mTimePaint);
             }
             else if (!isAnimating){
