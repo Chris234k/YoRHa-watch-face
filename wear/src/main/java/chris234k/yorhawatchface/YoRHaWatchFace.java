@@ -329,9 +329,9 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // Draw grid
                 for (int i = 0; i < mWidth / gridWidth; i++) {
                     if(i % 5 == 0 || i % 5 == 1){
-                        mGridPaint.setStrokeWidth(5);
+                        mGridPaint.setStrokeWidth(3);
                     } else{
-                        mGridPaint.setStrokeWidth(1);
+                        mGridPaint.setStrokeWidth(2);
                     }
 
                     canvas.drawLine(i * gridWidth, 0, i * gridHeight, mHeight, mGridPaint);
@@ -339,9 +339,9 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
                 for (int i = 0; i < mHeight / gridHeight; i++) {
                     if(i % 5 == 0 || i % 5 == 1){
-                        mGridPaint.setStrokeWidth(5);
+                        mGridPaint.setStrokeWidth(3);
                     } else{
-                        mGridPaint.setStrokeWidth(1);
+                        mGridPaint.setStrokeWidth(2);
                     }
 
                     canvas.drawLine(0, i * gridHeight, mWidth, i * gridHeight, mGridPaint);
