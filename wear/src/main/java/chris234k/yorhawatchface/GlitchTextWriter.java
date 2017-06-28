@@ -11,6 +11,7 @@ import java.util.Random;
 
 public class GlitchTextWriter {
     private boolean mIsAnimating;
+    private static final int FRAMES_PER_INDEX = 2;
     private int mTextIndex, mFrameIndex;
     private String mTextContent;
     private StringBuilder mTextValue;
@@ -43,7 +44,7 @@ public class GlitchTextWriter {
 
                 char insertChar;
 
-                if(mFrameIndex == 0) {
+                if(mFrameIndex < FRAMES_PER_INDEX) {
                     // Roll random character to display for current index
                     Random r = new Random();
                     int randomNum = r.nextInt(RANDOM_NUMERIC.length());
@@ -66,11 +67,11 @@ public class GlitchTextWriter {
 
                 Log.d("yorhawatchface", mTextIndex + " " + mTextValue);
 
-                if(mFrameIndex == 1){
+                if(mFrameIndex == FRAMES_PER_INDEX){
                     mTextIndex++;
-                    mFrameIndex = 0;
-                } else {
                     mFrameIndex = 1;
+                } else {
+                    mFrameIndex++;
                 }
 
                 if(mTextIndex <= mTextContent.length()) {

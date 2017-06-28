@@ -48,7 +48,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
      * Update rate in milliseconds for interactive mode.
      */
         private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
-        private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(33);
+        private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(1000 / 30);
 
     /**
      * Handler message id for updating the time periodically in interactive mode.
