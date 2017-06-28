@@ -43,14 +43,7 @@ import java.util.Random;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
- * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
- */
 public class YoRHaWatchFace extends CanvasWatchFaceService {
-    private static final Typeface NORMAL_TYPEFACE =
-            Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
-
     /**
      * Update rate in milliseconds for interactive mode.
      */
@@ -88,6 +81,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
+
         final Handler mUpdateTimeHandler = new EngineHandler(this);
         boolean mRegisteredTimeZoneReceiver = false;
         Paint mBackgroundPaint, mGridPaint, mTimePaint, mDatePaint;
@@ -113,79 +107,12 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private final Rect mTextBounds = new Rect();
         private String mDateStr;
 
+        // Text animation
+        private GlitchTextWriter mGlitchWriter;
+        private boolean mForceAnimationStart;
         // Don't want the text adjusting with each number changed
         private boolean isTextCalculated;
         private float mTextY;
-
-        private static final String RANDOM_CHARS = "1234567890:";
-        private boolean mIsAnimating, mForceAnimationStart;
-        private int mTextWriterIndex, mFrameIndex;
-        private String mTextWriterContent = new String();
-        private StringBuilder mTextWriterValue = new StringBuilder();
-        private Handler mTextWriterHandler = new Handler();
-        private Runnable mTextWriterRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // Consecutively display each character in the string
-                //
-                // For index x
-                // Frame 1- display random letter at x
-                // Frame 2- display value at index 0 at x
-                // Advance index
-                //
-                // This gives the appearance that index 0 is moving through the string to populate it
-
-                mIsAnimating = true;
-
-                char insertChar;
-
-                if(mFrameIndex == 0){
-                    // Roll random character to display for current index
-                    Random r = new Random();
-                    int randomNum = r.nextInt(RANDOM_CHARS.length());
-                    insertChar = RANDOM_CHARS.charAt(randomNum);
-                } else {
-                    insertChar = mTextWriterContent.charAt(0);
-                }
-
-                // If the string is long enough to pull a sub string from
-                if(mTextWriterIndex > 0){
-                    // Pull substring
-                    String subStr = mTextWriterContent.substring(0, mTextWriterIndex);
-                    mTextWriterValue = new StringBuilder(subStr);
-                    // Replace last char in sub w/ random
-                    mTextWriterValue.setCharAt(mTextWriterIndex-1, insertChar);
-                }
-                else{
-                    mTextWriterValue = new StringBuilder(insertChar);
-                }
-
-                Log.d("yorhawatchface", mTextWriterIndex + " " + mTextWriterValue);
-
-                if(mFrameIndex == 1){
-                    mTextWriterIndex++;
-                    mFrameIndex = 0;
-                }else{
-                    mFrameIndex = 1;
-                }
-
-                if(mTextWriterIndex <= mTextWriterContent.length()) {
-                    mTextWriterHandler.postDelayed(mTextWriterRunnable, TEXT_DRAW_UPDATE_RATE_MS);
-                }
-                else{
-                    mIsAnimating = false;
-                }
-            }
-        };
-
-        public void animateText(String text) {
-            mTextWriterContent = text;
-            mTextWriterIndex = 0;
-            mFrameIndex = 0;
-
-            mTextWriterHandler.removeCallbacks(mTextWriterRunnable);
-            mTextWriterHandler.postDelayed(mTextWriterRunnable, TEXT_DRAW_UPDATE_RATE_MS);
-        }
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -209,6 +136,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             mDatePaint = createTextPaint(resources.getColor(R.color.text, null));
 
             mCalendar = Calendar.getInstance();
+
+            mGlitchWriter = new GlitchTextWriter(TEXT_DRAW_UPDATE_RATE_MS);
 
             updateDateStr();
         }
@@ -307,7 +236,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             }
             else{
                 // Don't allow animations in ambient mode
-                mIsAnimating = false;
+                mGlitchWriter.stopAnimation();
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
@@ -380,16 +309,16 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // On remainder 9 we start the animation (so that it will start on 00) -- doesn't quite work
                 if (mForceAnimationStart || mCalendar.get(Calendar.SECOND) % 10 == 9) {
                     mForceAnimationStart = false;
-                    animateText(timeString);
+                    mGlitchWriter.animateText(timeString);
                 }
 
                 // Draw text using animated text values
-                if(mIsAnimating){
-                    canvas.drawText(mTextWriterValue.toString(), mCenterX, yPos, mTimePaint);
+                if(mGlitchWriter.getIsAnimating()){
+                    canvas.drawText(mGlitchWriter.getTextValue(), mCenterX, yPos, mTimePaint);
                 }
             }
 
-            if (!mIsAnimating){
+            if (!mGlitchWriter.getIsAnimating()){
                 canvas.drawText(timeString, mCenterX, yPos, mTimePaint);
             }
 
@@ -433,7 +362,6 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         }
 
         private float updateTextY(String text) {
-
             // https://stackoverflow.com/a/24969713
             // Draw text centered vertically (accounts for any vertical text pivot variation)
             // Pre calc x and y pos of text (also prevents height variation based on text contents)
