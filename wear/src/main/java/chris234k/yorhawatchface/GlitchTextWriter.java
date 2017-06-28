@@ -63,9 +63,8 @@ public class GlitchTextWriter {
                     mTextValue.setCharAt(mTextIndex -1, insertChar);
                 }
                 else{
-                    // Clear and append
+                    // Just use blank string
                     mTextValue.replace(0, mTextValue.length(), "");
-                    mTextValue.append(insertChar);
                 }
 
                 Log.d("yorhawatchface", mTextIndex + " " + mTextValue);
