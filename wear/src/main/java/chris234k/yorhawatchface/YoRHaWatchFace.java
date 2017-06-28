@@ -47,7 +47,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
     /**
      * Update rate in milliseconds for interactive mode.
      */
-        private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(33);
+        private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
         private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(33);
 
     /**
@@ -307,9 +307,9 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             if(!isInAmbientMode()) {
                 // On remainder 9 we start the animation (so that it will start on 00) -- doesn't quite work
-                if (mForceAnimationStart || mCalendar.get(Calendar.SECOND) % 10 == 9) {
+                if (mForceAnimationStart || mCalendar.get(Calendar.SECOND) % 10 == 0) {
                     mForceAnimationStart = false;
-                    mGlitchWriter.animateText(timeString);
+                    mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS);
                 }
 
                 // Draw text using animated text values
@@ -350,9 +350,9 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private void handleUpdateTimeMessage() {
             invalidate();
             if (shouldTimerBeRunning()) {
+                long updateRate = mGlitchWriter.getIsAnimating() ? TEXT_DRAW_UPDATE_RATE_MS : INTERACTIVE_UPDATE_RATE_MS;
                 long timeMs = System.currentTimeMillis();
-                long delayMs = INTERACTIVE_UPDATE_RATE_MS
-                        - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
+                long delayMs = updateRate - (timeMs % updateRate);
                 mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
             }
         }

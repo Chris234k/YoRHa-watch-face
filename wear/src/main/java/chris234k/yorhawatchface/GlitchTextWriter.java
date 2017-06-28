@@ -90,15 +90,17 @@ public class GlitchTextWriter {
         return mTextValue.toString();
     }
 
-    public void animateText(String text) {
+    public void animateText(String text, long delayMillis) {
         // Don't allow animations to be interrupted, stopAnimation should be called directly.
         if(!mIsAnimating) {
             mTextContent = text;
+            mTextValue.replace(0, mTextValue.length(), "");
             mTextIndex = 0;
             mFrameIndex = 0;
+            mIsAnimating = true;
 
             mHandler.removeCallbacks(mRunnable);
-            mHandler.postDelayed(mRunnable, mTextDrawRate);
+            mHandler.postDelayed(mRunnable, delayMillis);
         }
     }
 
