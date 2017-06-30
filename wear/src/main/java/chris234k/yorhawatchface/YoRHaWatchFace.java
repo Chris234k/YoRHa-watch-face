@@ -306,7 +306,6 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             float yPos = updateTextY(timeString);
 
             if(!isInAmbientMode()) {
-                // On remainder 9 we start the animation (so that it will start on 00) -- doesn't quite work
                 if (mForceAnimationStart || mCalendar.get(Calendar.SECOND) % 10 == 0) {
                     mForceAnimationStart = false;
                     mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS);
@@ -318,7 +317,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 }
             }
 
-            if (!mGlitchWriter.getIsAnimating()){
+            if (isInAmbientMode() || !mGlitchWriter.getIsAnimating()){
                 canvas.drawText(timeString, mCenterX, yPos, mTimePaint);
             }
 
