@@ -113,6 +113,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         // Don't want the text adjusting with each number changed
         private boolean isTextCalculated;
         private float mTextY;
+        private long mLastAnimationCompletionTime;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -306,9 +307,21 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             float yPos = updateTextY(timeString);
 
             if(!isInAmbientMode()) {
-                if (mForceAnimationStart || mCalendar.get(Calendar.SECOND) % 10 == 0) {
+                // On a 10 second and enough time since the last animation has passed
+                boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 0
+                        && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
+
+                // Normal conditions are met OR start is forced
+                if (canStart || mForceAnimationStart) {
                     mForceAnimationStart = false;
-                    mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS);
+                    mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS,
+                            // Callback updates last animation time
+                            new ICompletionCallback() {
+                        @Override
+                        public void onComplete() {
+                            mLastAnimationCompletionTime = System.currentTimeMillis();
+                        }
+                    });
                 }
 
                 // Draw text using animated text values

@@ -9,6 +9,11 @@ import java.util.Random;
  * Created by Chris on 6/27/2017.
  */
 
+interface ICompletionCallback {
+    void onComplete();
+}
+
+
 public class GlitchTextWriter {
     private boolean mIsAnimating;
     private static final int FRAMES_PER_INDEX = 2;
@@ -18,6 +23,8 @@ public class GlitchTextWriter {
     private Handler mHandler;
     private final Runnable mRunnable;
     private final long mTextDrawRate;
+
+    private ICompletionCallback mCompletionCallback;
 
     private static final String RANDOM_NUMERIC = "1234567890:";
 
@@ -78,6 +85,7 @@ public class GlitchTextWriter {
                     mHandler.postDelayed(mRunnable, mTextDrawRate);
                 } else {
                     mIsAnimating = false;
+                    mCompletionCallback.onComplete();
                 }
             }
         };
@@ -91,7 +99,7 @@ public class GlitchTextWriter {
         return mTextValue.toString();
     }
 
-    public void animateText(String text, long delayMillis) {
+    public void animateText(String text, long delayMillis, ICompletionCallback completionCallback) {
         // Don't allow animations to be interrupted, stopAnimation should be called directly.
         if(!mIsAnimating) {
             mTextContent = text;
@@ -99,6 +107,7 @@ public class GlitchTextWriter {
             mTextIndex = 0;
             mFrameIndex = 0;
             mIsAnimating = true;
+            mCompletionCallback = completionCallback;
 
             mHandler.removeCallbacks(mRunnable);
             mHandler.postDelayed(mRunnable, delayMillis);
