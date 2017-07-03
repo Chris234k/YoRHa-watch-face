@@ -29,6 +29,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
@@ -385,6 +386,14 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             }
 
             return mTextY;
+        }
+
+        private void vibrate(){
+            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+            long[] vibrationPattern = {0, 500, 50, 300};
+            //-1 - don't repeat
+            final int indexInPatternToRepeat = -1;
+            vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
         }
     }
 }
