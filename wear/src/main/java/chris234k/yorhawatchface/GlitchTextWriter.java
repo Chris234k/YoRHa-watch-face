@@ -27,7 +27,7 @@ public class GlitchTextWriter {
 
     public GlitchTextWriter() {
         mTextIndex = 0;
-        mFrameIndex = 0;
+        mFrameIndex = 1;
         mTextValue = new StringBuilder();
     }
 
@@ -96,7 +96,7 @@ public class GlitchTextWriter {
             mTextContent = text;
             mTextValue.replace(0, mTextValue.length(), "");
             mTextIndex = 0;
-            mFrameIndex = 0;
+            mFrameIndex = 1;
             mIsAnimating = true;
             mCompletionCallback = completionCallback;
         }
