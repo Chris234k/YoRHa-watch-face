@@ -36,6 +36,7 @@ public class GlitchTextWriter {
             // Consecutively display each character in the string
             //
             // For index x
+            // Draw correct letters from 0 to x-1
             // Frame 1- display random letter at x
             // Frame 2- display value at index 0 at x
             // Advance index
