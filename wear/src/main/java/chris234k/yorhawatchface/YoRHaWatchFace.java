@@ -33,12 +33,14 @@ import android.os.Vibrator;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -144,7 +146,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             mCalendar = Calendar.getInstance();
 
-            mGlitchWriter = new GlitchTextWriter();
+            mGlitchWriter = new GlitchTextWriter(TEXT_DRAW_UPDATE_RATE_MS);
 
             updateDateStr();
         }
@@ -319,12 +321,11 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // Normal conditions are met OR start is forced
                 if (canStart || mForceAnimationStart) {
                     mForceAnimationStart = false;
-                    mGlitchWriter.animateText(timeString, mOnTextAnimationComplete);
+                    mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS, mOnTextAnimationComplete);
                 }
 
                 // Draw text using animated text values
                 if(mGlitchWriter.getIsAnimating()){
-                    mGlitchWriter.update();
                     canvas.drawText(mGlitchWriter.getTextValue(), mCenterX, yPos, mTimePaint);
                 }
             }

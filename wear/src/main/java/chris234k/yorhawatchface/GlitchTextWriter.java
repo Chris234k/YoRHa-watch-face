@@ -20,19 +20,24 @@ public class GlitchTextWriter {
     private int mTextIndex, mFrameIndex;
     private String mTextContent;
     private StringBuilder mTextValue;
+    private Handler mHandler;
+    private final Runnable mRunnable;
+    private final long mTextDrawRate;
 
     private ICompletionCallback mCompletionCallback;
 
     private static final String RANDOM_NUMERIC = "1234567890:";
 
-    public GlitchTextWriter() {
+    public GlitchTextWriter(long textDrawRate) {
         mTextIndex = 0;
         mFrameIndex = 1;
         mTextValue = new StringBuilder();
-    }
+        mTextDrawRate = textDrawRate;
 
-    public void update() {
-        if(mIsAnimating) {
+        mHandler = new Handler();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
             // Consecutively display each character in the string
             //
             // For index x
@@ -42,6 +47,8 @@ public class GlitchTextWriter {
             // Advance index
             //
             // This gives the appearance that index 0 is moving through the string to populate it
+
+                mIsAnimating = true;
 
             char insertChar;
 
@@ -75,13 +82,15 @@ public class GlitchTextWriter {
                 mFrameIndex++;
             }
 
-            if (mTextIndex > mTextContent.length()) {
+                if(mTextIndex <= mTextContent.length()) {
+                    mHandler.postDelayed(mRunnable, mTextDrawRate);
+                } else {
                 mIsAnimating = false;
                 mCompletionCallback.onComplete();
             }
         }
+        };
     }
-
 
     public boolean getIsAnimating() {
         return mIsAnimating;
@@ -91,7 +100,7 @@ public class GlitchTextWriter {
         return mTextValue.toString();
     }
 
-    public void animateText(String text, ICompletionCallback completionCallback) {
+    public void animateText(String text, long delayMillis, ICompletionCallback completionCallback) {
         // Don't allow animations to be interrupted, stopAnimation should be called directly.
         if(!mIsAnimating) {
             mTextContent = text;
@@ -100,10 +109,16 @@ public class GlitchTextWriter {
             mFrameIndex = 1;
             mIsAnimating = true;
             mCompletionCallback = completionCallback;
+
+            mHandler.removeCallbacks(mRunnable);
+            mHandler.postDelayed(mRunnable, delayMillis);
         }
     }
 
     public void stopAnimation() {
+        if(mIsAnimating) {
+            mHandler.removeCallbacks(mRunnable);
         mIsAnimating = false;
     }
+}
 }
