@@ -313,14 +313,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             float yPos = updateTextY(timeString);
 
             if(!isInAmbientMode()) {
-                long startDelay = 0;
-                boolean canStart = false;
-
                 // If the ones digit is a 0 and enough time since the last animation has passed
-                if(mCalendar.get(Calendar.SECOND) % 10 == 0 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5)){
-                    canStart = true;
-                    startDelay = INTERACTIVE_UPDATE_RATE_MS;
-                }
+                boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 0 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
 
                 // Normal conditions are met OR start is forced
                 if (canStart || mForceAnimationStart) {
