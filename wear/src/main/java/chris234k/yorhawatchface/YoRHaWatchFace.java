@@ -115,6 +115,13 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private boolean isTextCalculated;
         private float mTextY;
         private long mLastAnimationCompletionTime;
+        private ICompletionCallback mOnTextAnimationComplete = new ICompletionCallback() {
+            // Callback updates last animation time
+                @Override
+                public void onComplete() {
+                    mLastAnimationCompletionTime = System.currentTimeMillis();
+                }
+        };
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -308,21 +315,19 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             float yPos = updateTextY(timeString);
 
             if(!isInAmbientMode()) {
-                // On a 10 second and enough time since the last animation has passed
-                boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 0
-                        && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
+                long startDelay = 0;
+                boolean canStart = false;
+
+                // If the ones digit is a 0 and enough time since the last animation has passed
+                if(mCalendar.get(Calendar.SECOND) % 10 == 0 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5)){
+                    canStart = true;
+                    startDelay = INTERACTIVE_UPDATE_RATE_MS;
+                }
 
                 // Normal conditions are met OR start is forced
                 if (canStart || mForceAnimationStart) {
                     mForceAnimationStart = false;
-                    mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS,
-                            // Callback updates last animation time
-                            new ICompletionCallback() {
-                        @Override
-                        public void onComplete() {
-                            mLastAnimationCompletionTime = System.currentTimeMillis();
-                        }
-                    });
+                    mGlitchWriter.animateText(timeString, startDelay, mOnTextAnimationComplete);
                 }
 
                 // Draw text using animated text values
