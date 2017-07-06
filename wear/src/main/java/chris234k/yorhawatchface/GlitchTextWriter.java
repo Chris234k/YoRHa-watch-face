@@ -15,7 +15,7 @@ interface ICompletionCallback {
 
 
 public class GlitchTextWriter {
-    private boolean mIsAnimating, canUpdate;
+    private boolean mIsAnimating;
     private static final int FRAMES_PER_INDEX = 2;
     private int mTextIndex, mFrameIndex;
     private String mTextContent;
