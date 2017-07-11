@@ -271,8 +271,10 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
+            boolean isAmbient = isInAmbientMode();
+
             // Draw the background.
-            if (isInAmbientMode()) {
+            if (isAmbient) {
                 canvas.drawColor(Color.BLACK);
             } else {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
@@ -314,7 +316,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             float yPos = updateTextY(timeString);
 
-            if(!isInAmbientMode()) {
+            if(isAmbient) {
                 // If the ones digit is a 0 and enough time since the last animation has passed
                 boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 0 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
 
@@ -330,7 +332,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 }
             }
 
-            if (isInAmbientMode() || !mGlitchWriter.getIsAnimating()){
+            if (isAmbient || !mGlitchWriter.getIsAnimating()){
                 canvas.drawText(timeString, mCenterX, yPos, mTimePaint);
             }
 
