@@ -316,7 +316,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             float yPos = updateTextY(timeString);
 
-            if(isAmbient) {
+            if(!isAmbient) {
                 // If the ones digit is a 0 and enough time since the last animation has passed
                 boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 0 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
 
