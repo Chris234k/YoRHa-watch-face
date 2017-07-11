@@ -323,6 +323,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // Normal conditions are met OR start is forced
                 if (canStart || mForceAnimationStart) {
                     mForceAnimationStart = false;
+
+                    // TODO: Delay might be beneficial (to prevent frames missed while leaving ambient), but I don't understand how to determine it's value. Current time feels far too long.
                     mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS, mOnTextAnimationComplete);
                 }
 
