@@ -281,37 +281,37 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
 
                 // Draw grid
-                for (int i = 0; i < mWidth / gridWidth; i++) {
-                    if(i % 5 == 0 || i % 5 == 1){
-                        mGridPaint.setStrokeWidth(3);
-                    } else{
-                        mGridPaint.setStrokeWidth(2);
-                    }
+//                for (int i = 0; i < mWidth / gridWidth; i++) {
+//                    if(i % 5 == 0 || i % 5 == 1){
+//                        mGridPaint.setStrokeWidth(3);
+//                    } else{
+//                        mGridPaint.setStrokeWidth(2);
+//                    }
+//
+//                    canvas.drawLine(i * gridWidth, 0, i * gridHeight, mHeight, mGridPaint);
+//                }
 
-                    canvas.drawLine(i * gridWidth, 0, i * gridHeight, mHeight, mGridPaint);
-                }
-
-                for (int i = 0; i < mHeight / gridHeight; i++) {
-                    if(i % 5 == 0 || i % 5 == 1){
-                        mGridPaint.setStrokeWidth(3);
-                    } else{
-                        mGridPaint.setStrokeWidth(2);
-                    }
-
-                    canvas.drawLine(0, i * gridHeight, mWidth, i * gridHeight, mGridPaint);
-                }
+//                for (int i = 0; i < mHeight / gridHeight; i++) {
+//                    if(i % 5 == 0 || i % 5 == 1){
+//                        mGridPaint.setStrokeWidth(3);
+//                    } else{
+//                        mGridPaint.setStrokeWidth(2);
+//                    }
+//
+//                    canvas.drawLine(0, i * gridHeight, mWidth, i * gridHeight, mGridPaint);
+//                }
 
                 updateDateStr();
             }
 
-            // Draw H:MM in ambient mode or H:MM:SS in interactive mode.
+            // Draw HH:MM in ambient mode or HH:MM:SS in interactive mode.
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
 
             String timeString = mAmbient
-                    ? String.format("%d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
+                    ? String.format("%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
                     mCalendar.get(Calendar.MINUTE))
-                    : String.format("%d:%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
+                    : String.format("%02d:%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
                     mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
 
             float yPos = updateTextY(timeString);
