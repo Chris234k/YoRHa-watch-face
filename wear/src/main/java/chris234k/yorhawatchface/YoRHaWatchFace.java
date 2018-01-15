@@ -40,14 +40,12 @@ import android.os.Vibrator;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
-import java.util.Random;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -110,7 +108,6 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private boolean mLowBitAmbient;
         private int mWidth, mHeight;
         private float mCenterX, mCenterY;
-        private int gridWidth = 10, gridHeight = 10;
 
         private final Rect mTextBounds = new Rect();
         private String mDateStr;
@@ -120,7 +117,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private boolean mForceAnimationStart;
         // Don't want the text adjusting with each number changed
         private boolean isTextCalculated;
-        private float mTextY;
+        private float mTextX, mTextY;
         private long mLastAnimationCompletionTime;
         private ICompletionCallback mOnTextAnimationComplete = new ICompletionCallback() {
             // Callback updates last animation time
@@ -157,6 +154,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             mDatePaint = new Paint();
             mDatePaint = createTextPaint(resources.getColor(R.color.text, null));
+            mDatePaint.setTextAlign(Paint.Align.CENTER);
 
             mCalendar = Calendar.getInstance();
 
@@ -176,7 +174,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             paint.setColor(textColor);
             paint.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FOT-RodinBokutoh Pro M.otf"));
             paint.setAntiAlias(true);
-            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTextAlign(Paint.Align.LEFT);
 
             return paint;
         }
@@ -294,27 +292,6 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mGridPaint);
 
-                // Draw grid (replaced by a single, tiling image as the grid background)
-//                for (int i = 0; i < mWidth / gridWidth; i++) {
-//                    if(i % 5 == 0 || i % 5 == 1){
-//                        mGridPaint.setStrokeWidth(3);
-//                    } else{
-//                        mGridPaint.setStrokeWidth(2);
-//                    }
-//
-//                    canvas.drawLine(i * gridWidth, 0, i * gridHeight, mHeight, mGridPaint);
-//                }
-
-//                for (int i = 0; i < mHeight / gridHeight; i++) {
-//                    if(i % 5 == 0 || i % 5 == 1){
-//                        mGridPaint.setStrokeWidth(3);
-//                    } else{
-//                        mGridPaint.setStrokeWidth(2);
-//                    }
-//
-//                    canvas.drawLine(0, i * gridHeight, mWidth, i * gridHeight, mGridPaint);
-//                }
-
                 updateDateStr();
             }
 
@@ -328,7 +305,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                     : String.format("%02d:%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
                     mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
 
-            float yPos = updateTextY(timeString);
+            updateTextPositions(timeString);
 
             if(!isAmbient) {
                 // If the ones digit is a 0 and enough time since the last animation has passed
@@ -344,15 +321,15 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
                 // Draw text using animated text values
                 if(mGlitchWriter.getIsAnimating()){
-                    canvas.drawText(mGlitchWriter.getTextValue(), mCenterX, yPos, mTimePaint);
+                    canvas.drawText(mGlitchWriter.getTextValue(), mTextX, mTextY, mTimePaint);
                 }
             }
 
             if (isAmbient || !mGlitchWriter.getIsAnimating()){
-                canvas.drawText(timeString, mCenterX, yPos, mTimePaint);
+                canvas.drawText(timeString, mTextX, mTextY, mTimePaint);
             }
 
-            canvas.drawText(mDateStr, mCenterX, yPos + mHeight * 0.1f, mDatePaint);
+            canvas.drawText(mDateStr, mCenterX, mTextY + mHeight * 0.1f, mDatePaint);
         }
 
         /**
@@ -391,7 +368,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             mDateStr = DateFormat.format("EEE d", mCalendar).toString().toUpperCase();
         }
 
-        private float updateTextY(String text) {
+        private void updateTextPositions(String text) {
             // https://stackoverflow.com/a/24969713
             // Draw text centered vertically (accounts for any vertical text pivot variation)
             // Pre calc x and y pos of text (also prevents height variation based on text contents)
@@ -399,10 +376,9 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 isTextCalculated = true;
 
                 mTimePaint.getTextBounds(text, 0, text.length(), mTextBounds);
+                mTextX = (mWidth - mTextBounds.width()) / 2;
                 mTextY = mCenterY - mTextBounds.exactCenterY();
             }
-
-            return mTextY;
         }
 
         private void vibrate(){
