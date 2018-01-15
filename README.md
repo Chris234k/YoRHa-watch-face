@@ -2,8 +2,6 @@
 Watch face w/ YoRHa stylings from NieR:Automata
 
 # Design TODO
-- Box around text? Animate boxes in w/ horizontal movement
-- Left aligned text? Would make the animation more pronounced
 - Buzz on hour
 - Dark theme (main menu style?)
 - Complications w/ chips from UI
