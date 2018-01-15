@@ -16,7 +16,7 @@ interface ICompletionCallback {
 
 public class GlitchTextWriter {
     private boolean mIsAnimating;
-    private static final int FRAMES_PER_INDEX = 2;
+    private static final int FRAMES_PER_INDEX = 3; // NieR uses 2, but only deals with letters. 3 looks better for numbers.
     private int mTextIndex, mFrameIndex;
     private String mFullText; // The end result, the string we're building towards
     private StringBuilder mCurrentText; // Current string value, as it animates toward mFulString
@@ -90,7 +90,7 @@ public class GlitchTextWriter {
                 // Replace last char in sub
                 mCurrentText.setCharAt(mTextIndex - 1, insertChar);
 
-                Log.d("yorhawatchface", mTextIndex + " " + mCurrentText);
+//                Log.d("yorhawatchface", mTextIndex + " " + mCurrentText);
 
                 if (mFrameIndex == FRAMES_PER_INDEX) {
                     mTextIndex++;
