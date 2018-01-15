@@ -73,7 +73,7 @@ public class GlitchTextWriter {
                 mTextValue.replace(0, mTextValue.length(), "");
             }
 
-            Log.d("yorhawatchface", mTextIndex + " " + mTextValue);
+//            Log.d("yorhawatchface", mTextIndex + " " + mTextValue);
 
             if (mFrameIndex == FRAMES_PER_INDEX) {
                 mTextIndex++;
