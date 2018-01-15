@@ -90,7 +90,7 @@ public class GlitchTextWriter {
                 // Replace last char in sub
                 mCurrentText.setCharAt(mTextIndex - 1, insertChar);
 
-//                Log.d("yorhawatchface", mTextIndex + " " + mCurrentText);
+                Log.d("yorhawatchface", mTextIndex + " " + mCurrentText);
 
                 if (mFrameIndex == FRAMES_PER_INDEX) {
                     mTextIndex++;

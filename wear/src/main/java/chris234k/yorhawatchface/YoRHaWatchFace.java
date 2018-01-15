@@ -40,6 +40,7 @@ import android.os.Vibrator;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
@@ -54,7 +55,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
      * Update rate in milliseconds for interactive mode.
      */
         private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
-        private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(1000 / 30);
+        private static final long TEXT_DRAW_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(1000 / 60);
 
     /**
      * Handler message id for updating the time periodically in interactive mode.
@@ -310,14 +311,13 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             updateTextPositions(timeString);
 
             if(!isAmbient) {
-                // If the ones digit is a 0 and enough time since the last animation has passed
+                // If the ones digit is a 9 and enough time since the last animation has passed
                 boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 9 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
 
                 // Normal conditions are met OR start is forced
                 if (canStart || mForceAnimationStart) {
                     mForceAnimationStart = false;
 
-                    // TODO: Delay might be beneficial (to prevent frames missed while leaving ambient), but I don't understand how to determine it's value. Current time feels far too long.
                     mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS, mOnTextAnimationComplete);
                 }
 
