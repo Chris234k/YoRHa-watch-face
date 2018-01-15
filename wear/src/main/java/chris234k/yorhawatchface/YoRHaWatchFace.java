@@ -116,7 +116,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private GlitchTextWriter mGlitchWriter;
         private boolean mForceAnimationStart;
         // Don't want the text adjusting with each number changed
-        private boolean isTextCalculated;
+        private boolean isTextPositionCalculated;
         private float mTextX, mTextY;
         private long mLastAnimationCompletionTime;
         private ICompletionCallback mOnTextAnimationComplete = new ICompletionCallback() {
@@ -249,6 +249,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 if (mLowBitAmbient) {
                     mTimePaint.setAntiAlias(!inAmbientMode);
                 }
+                // Allow position to be recalculated, prevents text out of position when entering / exiting ambient mode
+                isTextPositionCalculated = false;
                 invalidate();
             }
 
@@ -372,8 +374,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             // https://stackoverflow.com/a/24969713
             // Draw text centered vertically (accounts for any vertical text pivot variation)
             // Pre calc x and y pos of text (also prevents height variation based on text contents)
-            if (!isTextCalculated) {
-                isTextCalculated = true;
+            if (!isTextPositionCalculated) {
+                isTextPositionCalculated = true;
 
                 mTimePaint.getTextBounds(text, 0, text.length(), mTextBounds);
                 mTextX = (mWidth - mTextBounds.width()) / 2;
