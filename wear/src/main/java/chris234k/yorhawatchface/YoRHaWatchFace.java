@@ -311,7 +311,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             if(!isAmbient) {
                 // If the ones digit is a 0 and enough time since the last animation has passed
-                boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 0 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
+                boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 9 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
 
                 // Normal conditions are met OR start is forced
                 if (canStart || mForceAnimationStart) {

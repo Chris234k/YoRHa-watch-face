@@ -121,7 +121,7 @@ public class GlitchTextWriter {
         // Don't allow animations to be interrupted, stopAnimation should be called directly.
         if(!mIsAnimating) {
             mFullText = text;
-            mCurrentText.replace(0, mCurrentText.length(), "");
+            mCurrentText.replace(0, mCurrentText.length(), mFullText);
             mTextIndex = 1;
             mFrameIndex = 1;
             mIsAnimating = true;
