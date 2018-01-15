@@ -21,10 +21,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -139,7 +146,14 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             mTimePaint = createTextPaint(resources.getColor(R.color.text, null));
 
             mGridPaint = new Paint();
-            mGridPaint = createTextPaint(resources.getColor(R.color.grid, null));
+            // Setting color on Paint does not affect the drawing of the bitmap.
+            // Need to create a color filter, specifying the mode.
+            ColorFilter filter = new PorterDuffColorFilter(resources.getColor(R.color.grid, null), PorterDuff.Mode.MULTIPLY);
+            mGridPaint.setColorFilter(filter);
+
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.grid);
+            BitmapShader shader = new BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+            mGridPaint.setShader(shader);
 
             mDatePaint = new Paint();
             mDatePaint = createTextPaint(resources.getColor(R.color.text, null));
@@ -278,9 +292,9 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 canvas.drawColor(Color.BLACK);
             } else {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
+                canvas.drawRect(0, 0, bounds.width(), bounds.height(), mGridPaint);
 
-
-                // Draw grid
+                // Draw grid (replaced by a single, tiling image as the grid background)
 //                for (int i = 0; i < mWidth / gridWidth; i++) {
 //                    if(i % 5 == 0 || i % 5 == 1){
 //                        mGridPaint.setStrokeWidth(3);
