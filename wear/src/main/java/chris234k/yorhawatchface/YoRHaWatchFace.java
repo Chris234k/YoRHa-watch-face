@@ -378,7 +378,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 isTextPositionCalculated = true;
 
                 mTimePaint.getTextBounds(text, 0, text.length(), mTextBounds);
-                mTextX = (mWidth - mTextBounds.width()) / 2;
+                float width = mTimePaint.measureText(text);
+                mTextX = (mWidth - width) / 2;
                 mTextY = mCenterY - mTextBounds.exactCenterY();
             }
         }
