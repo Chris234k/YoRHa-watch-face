@@ -20,6 +20,9 @@
             android:label="@string/my_digital_name"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
+                android:name="com.google.android.wearable.standalone"
+                android:value="true"/>
+            <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
             <meta-data
