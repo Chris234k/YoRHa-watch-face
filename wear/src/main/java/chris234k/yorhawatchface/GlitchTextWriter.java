@@ -30,13 +30,14 @@ public class GlitchTextWriter {
     // Instead, we select random characters from all valid time string values
     // With numbers, the effect is much less pronounced:
     // 10:00:00 only has 3 unique chars
-    private static final String RANDOM_NUMERIC = "1234567890:";
+    private String mRandomCharSet; // For example: "1234567890:";
 
-    public GlitchTextWriter(long textDrawRate) {
+    public GlitchTextWriter(long textDrawRate, String randomCharSet) {
         mTextIndex = 1;
         mFrameIndex = 1;
         mCurrentText = new StringBuilder();
         mTextDrawRate = textDrawRate;
+        mRandomCharSet = randomCharSet;
 
         mHandler = new Handler();
         mRunnable = new Runnable() {
@@ -78,8 +79,8 @@ public class GlitchTextWriter {
                 if (mFrameIndex < FRAMES_PER_INDEX) {
                     // Roll random character to display for current index
                     Random r = new Random();
-                    int randomNum = r.nextInt(RANDOM_NUMERIC.length());
-                    insertChar = RANDOM_NUMERIC.charAt(randomNum);
+                    int randomNum = r.nextInt(mRandomCharSet.length());
+                    insertChar = mRandomCharSet.charAt(randomNum);
                 } else {
                     insertChar = mFullText.charAt(0);
                 }
@@ -103,10 +104,17 @@ public class GlitchTextWriter {
                     mHandler.postDelayed(mRunnable, mTextDrawRate);
                 } else {
                     mIsAnimating = false;
-                    mCompletionCallback.onComplete();
+
+                    if(mCompletionCallback != null) {
+                        mCompletionCallback.onComplete();
+                    }
                 }
             }
         };
+    }
+
+    public void setRandomCharacterSet(String characterSet) {
+        mRandomCharSet = characterSet;
     }
 
     public boolean getIsAnimating() {

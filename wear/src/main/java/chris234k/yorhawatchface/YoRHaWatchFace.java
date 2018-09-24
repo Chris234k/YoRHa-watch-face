@@ -114,7 +114,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private String mDateStr;
 
         // Text animation
-        private GlitchTextWriter mGlitchWriter;
+        private GlitchTextWriter mGlitchTimeWriter, mGlitchDateWriter;
         private boolean mForceAnimationStart;
         // Don't want the text adjusting with each number changed
         private boolean isTextPositionCalculated;
@@ -127,7 +127,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                     mLastAnimationCompletionTime = System.currentTimeMillis();
                 }
         };
-
+        
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
@@ -159,7 +159,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
 
             mCalendar = Calendar.getInstance();
 
-            mGlitchWriter = new GlitchTextWriter(TEXT_DRAW_UPDATE_RATE_MS);
+            mGlitchTimeWriter = new GlitchTextWriter(TEXT_DRAW_UPDATE_RATE_MS, "1234567890:");
+            mGlitchDateWriter = new GlitchTextWriter(TEXT_DRAW_UPDATE_RATE_MS, ""); // random chars are assigned later
 
             updateDateStr();
         }
@@ -264,7 +265,8 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             }
             else{
                 // Don't allow animations in ambient mode
-                mGlitchWriter.stopAnimation();
+                mGlitchTimeWriter.stopAnimation();
+                mGlitchDateWriter.stopAnimation();
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
@@ -333,20 +335,29 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 if (canStart || mForceAnimationStart) {
                     mForceAnimationStart = false;
 
-                    mGlitchWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS, mOnTextAnimationComplete);
+                    mGlitchTimeWriter.animateText(timeString, INTERACTIVE_UPDATE_RATE_MS, mOnTextAnimationComplete);
+
+                    mGlitchDateWriter.setRandomCharacterSet(mDateStr.replace(" ", "")); // Pass in the current string to use as the random set of characters
+                    mGlitchDateWriter.animateText(mDateStr, INTERACTIVE_UPDATE_RATE_MS, null);
                 }
 
                 // Draw text using animated text values
-                if(mGlitchWriter.getIsAnimating()){
-                    canvas.drawText(mGlitchWriter.getTextValue(), mTextX, mTextY, mTimePaint);
+                if(mGlitchTimeWriter.getIsAnimating()){
+                    canvas.drawText(mGlitchTimeWriter.getTextValue(), mTextX, mTextY, mTimePaint);
                 }
-            }
 
-            if (isAmbient || !mGlitchWriter.getIsAnimating()){
+                if(mGlitchDateWriter.getIsAnimating()){
+                    canvas.drawText(mGlitchDateWriter.getTextValue(), mCenterX, mTextY + mHeight * 0.1f, mDatePaint);
+                }
+            } 
+            
+            if (isAmbient || !mGlitchTimeWriter.getIsAnimating()) {
                 canvas.drawText(timeString, mTextX, mTextY, mTimePaint);
             }
 
-            canvas.drawText(mDateStr, mCenterX, mTextY + mHeight * 0.1f, mDatePaint);
+            if(isAmbient || !mGlitchDateWriter.getIsAnimating()) {
+                canvas.drawText(mDateStr, mCenterX, mTextY + mHeight * 0.1f, mDatePaint);
+            }
         }
 
         /**
@@ -374,7 +385,7 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
         private void handleUpdateTimeMessage() {
             invalidate();
             if (shouldTimerBeRunning()) {
-                long updateRate = mGlitchWriter.getIsAnimating() ? TEXT_DRAW_UPDATE_RATE_MS : INTERACTIVE_UPDATE_RATE_MS;
+                long updateRate = (mGlitchTimeWriter.getIsAnimating() || mGlitchDateWriter.getIsAnimating()) ? TEXT_DRAW_UPDATE_RATE_MS : INTERACTIVE_UPDATE_RATE_MS;
                 long timeMs = System.currentTimeMillis();
                 long delayMs = updateRate - (timeMs % updateRate);
                 mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
