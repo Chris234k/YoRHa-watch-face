@@ -226,7 +226,11 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
             float textSize = resources.getDimension(isRound
                     ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
-            mTimePaint.setTextSize(textSize);
+            // "AM" and "PM" text makes the string just a bit too long so we need to shrink it
+            boolean is24Hour = android.text.format.DateFormat.is24HourFormat(getApplicationContext());
+            float textSizeMulti = is24Hour ? 1.0f : 0.7f;
+
+            mTimePaint.setTextSize(textSize * textSizeMulti);
             mDatePaint.setTextSize(textSize * 0.4f);
         }
 
@@ -298,15 +302,27 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 updateDateStr();
             }
 
-            // Draw HH:MM in ambient mode or HH:MM:SS in interactive mode.
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
 
-            String timeString = mAmbient
-                    ? String.format("%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
-                    mCalendar.get(Calendar.MINUTE))
-                    : String.format("%02d:%02d:%02d", mCalendar.get(Calendar.HOUR_OF_DAY),
-                    mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
+            final String formatString;
+            // NOTE(chris) "HH" refers to 00-23, while "h" gives us 1-12
+            // https://developer.android.com/reference/java/text/SimpleDateFormat
+            if(android.text.format.DateFormat.is24HourFormat(getApplicationContext())) {
+                if(mAmbient) {
+                    formatString = "HH:mm";                    
+                } else {
+                    formatString = "HH:mm:ss";
+                }
+            } else {
+                if(mAmbient) {
+                    formatString = "h:mm a";
+                } else {
+                    formatString = "h:mm:ss a";
+                }
+            }
+
+            String timeString = DateFormat.format(formatString, mCalendar).toString();
 
             updateTextPositions(timeString);
 
@@ -314,7 +330,6 @@ public class YoRHaWatchFace extends CanvasWatchFaceService {
                 // If the ones digit is a 9 and enough time since the last animation has passed
                 boolean canStart = mCalendar.get(Calendar.SECOND) % 10 == 9 && System.currentTimeMillis() - mLastAnimationCompletionTime >= TimeUnit.SECONDS.toMillis(5);
 
-                // Normal conditions are met OR start is forced
                 if (canStart || mForceAnimationStart) {
                     mForceAnimationStart = false;
 
